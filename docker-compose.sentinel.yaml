@@ -1,0 +1,75 @@
+version: '3.7'
+services:
+  redis-master:
+    image: redis:alpine
+    container_name: redis-master
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./config/redis-master.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "36379:6379"
+
+  redis-slave:
+    image: redis:alpine
+    container_name: redis-slave
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./config/redis-slave.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "36380:6379"
+    depends_on:
+      - redis-master
+
+  redis-slave2:
+    image: redis:alpine
+    container_name: redis-slave2
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./config/redis-slave.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "36381:6379"
+    depends_on:
+      - redis-master
+
+  sentinel:
+    image: redis:alpine
+    container_name: redis-sentinel
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel/sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    depends_on:
+      - redis-master
+      - redis-slave
+      - redis-slave2
+    ports:
+      - "26379:26379"
+
+  sentinel2:
+    image: redis:alpine
+    container_name: redis-sentinel2
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel/sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    depends_on:
+      - redis-master
+      - redis-slave
+      - redis-slave2
+    ports:
+      - "26380:26379"
+
+  sentinel3:
+    image: redis:alpine
+    container_name: redis-sentinel3
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel/sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    depends_on:
+      - redis-master
+      - redis-slave
+      - redis-slave2
+    ports:
+      - "26381:26379"
+
+networks:
+  default:
+    driver: bridge

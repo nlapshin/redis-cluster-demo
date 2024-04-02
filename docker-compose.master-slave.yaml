@@ -1,0 +1,33 @@
+version: '3'
+services:
+  redis-master:
+    image: redis:alpine
+    ports:
+      - "26379:6379"
+    command: redis-server --appendonly yes
+    networks:
+      - redis-net
+
+  redis-slave-1:
+    image: redis:alpine
+    command: redis-server --slaveof redis-master 6379 --appendonly yes
+    ports:
+      - "26380:6379"
+    depends_on:
+      - redis-master
+    networks:
+      - redis-net
+
+  redis-slave-2:
+    image: redis:alpine
+    command: redis-server --slaveof redis-master 6379 --appendonly yes
+    ports:
+      - "26381:6379"
+    depends_on:
+      - redis-master
+    networks:
+      - redis-net
+
+networks:
+  redis-net:
+    driver: bridge
